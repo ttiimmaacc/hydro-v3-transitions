@@ -1,5 +1,5 @@
-import {Await, Link} from '@remix-run/react';
-import {Suspense, useId} from 'react';
+import {Await, Link, useLocation} from '@remix-run/react';
+import {Suspense, useId, useRef} from 'react';
 import {Aside} from '~/components/Aside';
 import {Footer} from '~/components/Footer';
 import {Header, HeaderMenu} from '~/components/Header';
@@ -9,6 +9,9 @@ import {
   SearchFormPredictive,
 } from '~/components/SearchFormPredictive';
 import {SearchResultsPredictive} from '~/components/SearchResultsPredictive';
+
+import {CSSTransition, SwitchTransition} from 'react-transition-group';
+import AnimatedOutlet from '~/components/AnimatedOutlet';
 
 /**
  * @param {PageLayoutProps}
@@ -21,6 +24,9 @@ export function PageLayout({
   isLoggedIn,
   publicStoreDomain,
 }) {
+  const location = useLocation();
+  const nodeRef = useRef(null);
+
   return (
     <Aside.Provider>
       <CartAside cart={cart} />
@@ -34,7 +40,21 @@ export function PageLayout({
           publicStoreDomain={publicStoreDomain}
         />
       )}
-      <main>{children}</main>
+      <main className="relative">
+        <SwitchTransition mode="out-in">
+          <CSSTransition
+            key={location.pathname}
+            nodeRef={nodeRef}
+            timeout={300}
+            classNames="fade"
+            unmountOnExit
+          >
+            <div ref={nodeRef}>
+              <AnimatedOutlet />
+            </div>
+          </CSSTransition>
+        </SwitchTransition>
+      </main>
       <Footer
         footer={footer}
         header={header}
